@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NetScope — Network Diagnostics</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --accent: #58a6ff;
+      --accent2: #3fb950;
+      --warn: #f78166;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --radius: 10px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 20px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .logo {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo svg { width: 28px; height: 28px; }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      margin-left: 20px;
+      font-size: 0.9rem;
+      transition: color .2s;
+    }
+    nav a:hover { color: var(--text); }
+
+    main {
+      max-width: 900px;
+      width: 100%;
+      margin: 40px auto;
+      padding: 0 20px;
+      flex: 1;
+    }
+
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+    .subtitle { color: var(--muted); margin-bottom: 36px; }
+
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .tool-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .tool-card h2 {
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--accent);
+    }
+
+    .tool-card p { font-size: 0.82rem; color: var(--muted); margin-top: -6px; }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    input[type=text] {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: var(--text);
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    input[type=text]:focus { border-color: var(--accent); }
+
+    button {
+      background: var(--accent);
+      color: #0d1117;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: opacity .2s;
+      white-space: nowrap;
+    }
+    button:hover { opacity: 0.85; }
+    button:disabled { opacity: 0.4; cursor: default; }
+
+    .result {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 0.8rem;
+      font-family: 'Courier New', monospace;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 280px;
+      overflow-y: auto;
+      display: none;
+      line-height: 1.6;
+    }
+    .result.visible { display: block; }
+    .result .ok { color: var(--accent2); }
+    .result .err { color: var(--warn); }
+    .result .key { color: var(--accent); }
+
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      border-top: 1px solid var(--border);
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M2 12h4M18 12h4M12 2v4M12 18v4"/>
+      <path d="M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/>
+    </svg>
+    NetScope
+  </div>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/docs.html">Docs</a>
+    <a href="https://github.com" target="_blank">GitHub</a>
+  </nav>
+</header>
+
+<main>
+  <h1>Network Diagnostics</h1>
+  <p class="subtitle">Inspect hosts, DNS records, open ports, HTTP headers, and routes — right from your browser.</p>
+
+  <div class="tools-grid">
+
+    <!-- PING -->
+    <div class="tool-card">
+      <h2>📡 Ping</h2>
+      <p>Send ICMP packets and measure round-trip time</p>
+      <div class="input-row">
+        <input type="text" id="ping-host" placeholder="e.g. google.com" />
+        <button onclick="runPing()">Run</button>
+      </div>
+      <div class="result" id="ping-result"></div>
+    </div>
+
+    <!-- DNS -->
+    <div class="tool-card">
+      <h2>🔍 DNS Lookup</h2>
+      <p>Resolve A, AAAA, MX, NS, TXT records</p>
+      <div class="input-row">
+        <input type="text" id="dns-host" placeholder="e.g. github.com" />
+        <button onclick="runDns()">Lookup</button>
+      </div>
+      <div class="result" id="dns-result"></div>
+    </div>
+
+    <!-- PORT SCAN -->
+    <div class="tool-card">
+      <h2>🔌 Port Scanner</h2>
+      <p>Check common ports: 22, 80, 443, 3306, 5432…</p>
+      <div class="input-row">
+        <input type="text" id="port-host" placeholder="e.g. 1.1.1.1" />
+        <button onclick="runPorts()">Scan</button>
+      </div>
+      <div class="result" id="port-result"></div>
+    </div>
+
+    <!-- HTTP HEADERS -->
+    <div class="tool-card">
+      <h2>📋 HTTP Headers</h2>
+      <p>Inspect server response headers of any URL</p>
+      <div class="input-row">
+        <input type="text" id="http-url" placeholder="e.g. https://example.com" />
+        <button onclick="runHeaders()">Fetch</button>
+      </div>
+      <div class="result" id="http-result"></div>
+    </div>
+
+    <!-- TRACEROUTE -->
+    <div class="tool-card" style="grid-column: 1 / -1">
+      <h2>🗺️ Traceroute</h2>
+      <p>Trace the network path from this server to a destination host</p>
+      <div class="input-row">
+        <input type="text" id="trace-host" placeholder="e.g. 8.8.8.8" />
+        <button onclick="runTrace()">Trace</button>
+      </div>
+      <div class="result" id="trace-result"></div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  NetScope &mdash; open source network diagnostics &nbsp;|&nbsp;
+  <a href="/docs.html">Documentation</a> &nbsp;|&nbsp;
+  <a href="https://github.com" target="_blank">GitHub</a>
+</footer>
+
+<script>
+  const API = '/api';
+
+  function spin(id) {
+    const el = document.getElementById(id);
+    el.className = 'result visible';
+    el.innerHTML = '<span class="spinner"></span> Running…';
+  }
+
+  function show(id, html) {
+    const el = document.getElementById(id);
+    el.className = 'result visible';
+    el.innerHTML = html;
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  async function post(path, body) {
+    const r = await fetch(API + path, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body),
+    });
+    if (!r.ok) {
+      const e = await r.json().catch(() => ({detail: r.statusText}));
+      throw new Error(e.detail || r.statusText);
+    }
+    return r.json();
+  }
+
+  async function runPing() {
+    const host = document.getElementById('ping-host').value.trim();
+    if (!host) return;
+    spin('ping-result');
+    try {
+      const d = await post('/ping', {host});
+      const lines = d.output.map(l => {
+        if (l.includes('time=')) return `<span class="ok">${esc(l)}</span>`;
+        if (l.includes('PING')) return `<span class="key">${esc(l)}</span>`;
+        return esc(l);
+      }).join('\n');
+      show('ping-result', lines || (d.success ? '<span class="ok">Success</span>' : '<span class="err">No response</span>'));
+    } catch(e) { show('ping-result', `<span class="err">Error: ${esc(e.message)}</span>`); }
+  }
+
+  async function runDns() {
+    const host = document.getElementById('dns-host').value.trim();
+    if (!host) return;
+    spin('dns-result');
+    try {
+      const d = await post('/dns', {host});
+      let out = '';
+      for (const [type, vals] of Object.entries(d.records)) {
+        if (!vals.length) continue;
+        out += `<span class="key">${type}</span>\n`;
+        vals.forEach(v => { out += `  ${esc(v)}\n`; });
+      }
+      show('dns-result', out || '<span class="err">No records found</span>');
+    } catch(e) { show('dns-result', `<span class="err">Error: ${esc(e.message)}</span>`); }
+  }
+
+  async function runPorts() {
+    const host = document.getElementById('port-host').value.trim();
+    if (!host) return;
+    spin('port-result');
+    try {
+      const d = await post('/ports', {host});
+      const lines = d.results.map(r =>
+        r.open
+          ? `<span class="ok">  OPEN   ${r.port}</span>`
+          : `<span class="err">  CLOSED ${r.port}</span>`
+      ).join('\n');
+      show('port-result', `<span class="key">${esc(host)}</span>\n` + lines);
+    } catch(e) { show('port-result', `<span class="err">Error: ${esc(e.message)}</span>`); }
+  }
+
+  async function runHeaders() {
+    const url = document.getElementById('http-url').value.trim();
+    if (!url) return;
+    spin('http-result');
+    try {
+      const d = await post('/headers', {url});
+      let out = `<span class="ok">HTTP ${d.status}</span>  <span class="key">${esc(d.url)}</span>\n\n`;
+      for (const [k, v] of Object.entries(d.headers)) {
+        out += `<span class="key">${esc(k)}</span>: ${esc(v)}\n`;
+      }
+      show('http-result', out);
+    } catch(e) { show('http-result', `<span class="err">Error: ${esc(e.message)}</span>`); }
+  }
+
+  async function runTrace() {
+    const host = document.getElementById('trace-host').value.trim();
+    if (!host) return;
+    spin('trace-result');
+    try {
+      const d = await post('/traceroute', {host});
+      const lines = d.hops.map((l, i) =>
+        i === 0 ? `<span class="key">${esc(l)}</span>` : esc(l)
+      ).join('\n');
+      show('trace-result', lines);
+    } catch(e) { show('trace-result', `<span class="err">Error: ${esc(e.message)}</span>`); }
+  }
+
+  // Enter key support
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    const id = document.activeElement?.id;
+    if (id === 'ping-host') runPing();
+    else if (id === 'dns-host') runDns();
+    else if (id === 'port-host') runPorts();
+    else if (id === 'http-url') runHeaders();
+    else if (id === 'trace-host') runTrace();
+  });
+</script>
+</body>
+</html>

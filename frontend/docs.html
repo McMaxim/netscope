@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NetScope — Documentation</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --accent: #58a6ff; --accent2: #3fb950; --warn: #f78166;
+      --text: #e6edf3; --muted: #8b949e; --radius: 10px;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; }
+    header {
+      padding: 20px 32px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    }
+    .logo { font-size: 1.4rem; font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 10px; }
+    .logo svg { width: 28px; height: 28px; }
+    nav a { color: var(--muted); text-decoration: none; margin-left: 20px; font-size: 0.9rem; transition: color .2s; }
+    nav a:hover { color: var(--text); }
+
+    main { max-width: 820px; margin: 48px auto; padding: 0 24px 60px; }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+    .sub { color: var(--muted); margin-bottom: 48px; font-size: 1rem; }
+
+    h2 { font-size: 1.25rem; color: var(--accent); margin-bottom: 12px; margin-top: 40px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+    p { color: var(--muted); line-height: 1.7; margin-bottom: 12px; font-size: 0.95rem; }
+
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px; }
+    .feature {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+    }
+    .feature h3 { font-size: 0.95rem; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+    .feature p { font-size: 0.82rem; margin: 0; }
+
+    .endpoint { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 14px; overflow: hidden; }
+    .endpoint-header { padding: 12px 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
+    .method { background: var(--accent); color: #0d1117; font-weight: 700; font-size: 0.75rem; padding: 3px 8px; border-radius: 4px; }
+    .path { font-family: monospace; font-size: 0.9rem; color: var(--text); }
+    .endpoint-body { padding: 12px 16px; font-size: 0.82rem; color: var(--muted); }
+    code { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; font-family: monospace; font-size: 0.85rem; color: var(--text); }
+    pre { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; font-family: monospace; font-size: 0.82rem; line-height: 1.7; overflow-x: auto; color: var(--text); margin: 10px 0; }
+
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .badge-green { background: #1a3326; color: var(--accent2); }
+    .badge-blue { background: #1a2537; color: var(--accent); }
+
+    .github-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); text-decoration: none; padding: 10px 18px;
+      border-radius: var(--radius); font-size: 0.9rem; font-weight: 600;
+      transition: border-color .2s;
+    }
+    .github-btn:hover { border-color: var(--accent); }
+    .github-btn svg { width: 18px; height: 18px; }
+
+    footer { text-align: center; padding: 24px; color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(--border); }
+    footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M2 12h4M18 12h4M12 2v4M12 18v4"/>
+      <path d="M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/>
+    </svg>
+    NetScope
+  </div>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/docs.html">Docs</a>
+    <a href="https://github.com/YOUR_USERNAME/netscope" target="_blank">GitHub</a>
+  </nav>
+</header>
+
+<main>
+  <h1>Documentation</h1>
+  <p class="sub">NetScope — a web-based network diagnostics toolkit. Run network utilities from your browser without installing anything.</p>
+
+  <a class="github-btn" href="https://github.com/YOUR_USERNAME/netscope" target="_blank">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.021c0 4.428 2.865 8.185 6.839 9.504.5.092.682-.217.682-.483 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482C19.138 20.203 22 16.447 22 12.021 22 6.484 17.523 2 12 2z"/></svg>
+    View on GitHub
+  </a>
+
+  <h2>Overview</h2>
+  <p>NetScope exposes common network diagnostic tools through a clean REST API and a browser UI. All operations are executed server-side, so they reflect the network conditions and routing from the server's perspective.</p>
+
+  <div class="feature-grid">
+    <div class="feature">
+      <h3>📡 Ping</h3>
+      <p>ICMP echo requests with RTT statistics (4 packets, 2s timeout per hop).</p>
+    </div>
+    <div class="feature">
+      <h3>🔍 DNS Lookup</h3>
+      <p>Resolves A, AAAA, MX, NS, and TXT records for any domain.</p>
+    </div>
+    <div class="feature">
+      <h3>🔌 Port Scanner</h3>
+      <p>TCP connect scan on a custom list of ports (max 20). Checks 22, 80, 443 and more by default.</p>
+    </div>
+    <div class="feature">
+      <h3>📋 HTTP Headers</h3>
+      <p>Fetches response headers from any URL, following redirects, showing final URL and status code.</p>
+    </div>
+    <div class="feature">
+      <h3>🗺️ Traceroute</h3>
+      <p>Traces the network path to a host, up to 15 hops, 1s timeout per hop.</p>
+    </div>
+  </div>
+
+  <h2>API Reference</h2>
+  <p>All endpoints accept <code>POST</code> with a JSON body and return JSON. Base URL: <code>/api</code></p>
+
+  <div class="endpoint">
+    <div class="endpoint-header">
+      <span class="method">POST</span>
+      <span class="path">/api/ping</span>
+      <span class="badge badge-green">public</span>
+    </div>
+    <div class="endpoint-body">
+      Body: <code>{"host": "google.com"}</code><br/>
+      Returns: <code>{"host", "output": [...lines], "success": bool}</code>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="endpoint-header">
+      <span class="method">POST</span>
+      <span class="path">/api/dns</span>
+      <span class="badge badge-green">public</span>
+    </div>
+    <div class="endpoint-body">
+      Body: <code>{"host": "github.com"}</code><br/>
+      Returns: <code>{"host", "records": {"A": [...], "MX": [...], ...}}</code>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="endpoint-header">
+      <span class="method">POST</span>
+      <span class="path">/api/ports</span>
+      <span class="badge badge-green">public</span>
+    </div>
+    <div class="endpoint-body">
+      Body: <code>{"host": "1.1.1.1", "ports": [80, 443, 22]}</code> (max 20 ports)<br/>
+      Returns: <code>{"host", "results": [{"port": 80, "open": true}, ...]}</code>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="endpoint-header">
+      <span class="method">POST</span>
+      <span class="path">/api/headers</span>
+      <span class="badge badge-green">public</span>
+    </div>
+    <div class="endpoint-body">
+      Body: <code>{"url": "https://example.com"}</code><br/>
+      Returns: <code>{"url", "status": 200, "headers": {...}}</code>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="endpoint-header">
+      <span class="method">POST</span>
+      <span class="path">/api/traceroute</span>
+      <span class="badge badge-green">public</span>
+    </div>
+    <div class="endpoint-body">
+      Body: <code>{"host": "8.8.8.8"}</code><br/>
+      Returns: <code>{"host", "hops": [...lines]}</code>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="endpoint-header">
+      <span class="method">GET</span>
+      <span class="path">/api/health</span>
+      <span class="badge badge-blue">healthcheck</span>
+    </div>
+    <div class="endpoint-body">Returns: <code>{"status": "ok"}</code></div>
+  </div>
+
+  <h2>Self-Hosting</h2>
+  <p>NetScope is fully Dockerized. You need Docker, Docker Compose, and a domain pointing to your server.</p>
+
+  <pre>git clone https://github.com/YOUR_USERNAME/netscope.git
+cd netscope
+
+# Edit Caddyfile — replace yourdomain.com with your domain
+nano Caddyfile
+
+docker compose up -d</pre>
+
+  <p>Caddy handles TLS certificates automatically via Let's Encrypt. No extra configuration needed.</p>
+
+  <h2>Architecture</h2>
+  <pre>Browser
+  └─▶ Caddy (HTTPS :443)
+        ├─▶ /api/* ──▶ FastAPI (uvicorn :8000)
+        └─▶ /*    ──▶ Static files (frontend/)</pre>
+
+  <p>All network operations run inside the backend container. Ping and traceroute use <code>NET_RAW</code> capabilities. Port scan uses async TCP connect with a 2s timeout per port.</p>
+
+  <h2>Security Notes</h2>
+  <p>Host input is validated with <code>/^[a-zA-Z0-9.\-_]+$/</code> to prevent shell injection. All subprocess calls use <code>exec</code> form (no shell). Port scan is limited to 20 ports per request. Timeouts are enforced on every operation.</p>
+</main>
+
+<footer>
+  NetScope &mdash; open source &nbsp;|&nbsp;
+  <a href="/">App</a> &nbsp;|&nbsp;
+  <a href="https://github.com/YOUR_USERNAME/netscope" target="_blank">GitHub</a>
+</footer>
+
+</body>
+</html>
