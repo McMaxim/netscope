@@ -1,67 +1,70 @@
 # NetScope
 
-Web-based network diagnostics toolkit. Run Ping, DNS lookup, Port scan, HTTP headers inspection, and Traceroute — right from your browser.
+Веб-приложение для базовой сетевой диагностики. Можно проверить DNS-записи домена, узнать какие порты открыты на хосте, и посмотреть HTTP-заголовки любого сайта — всё это прямо в браузере, без установки дополнительных программ.
 
-**Live demo:** https://yourdomain.com  
-**Docs:** https://yourdomain.com/docs.html
+Сделано в рамках учебного проекта по компьютерным сетям.
 
-## Features
+**Ссылка:** https://netscope-c4fb.onrender.com  
+**Документация:** https://netscope-c4fb.onrender.com/docs.html
 
-| Tool | Description |
+## Что умеет
+
+| Инструмент | Описание |
 |---|---|
-| 📡 Ping | ICMP echo with RTT stats (4 packets) |
-| 🔍 DNS Lookup | A, AAAA, MX, NS, TXT records |
-| 🔌 Port Scanner | TCP connect scan, up to 20 ports |
-| 📋 HTTP Headers | Response headers with redirect follow |
-| 🗺️ Traceroute | Network path, up to 15 hops |
+| DNS-запрос | Получить A, AAAA, MX, NS, TXT-записи домена |
+| Сканер портов | Проверить TCP-порты на доступность (до 20 штук) |
+| HTTP-заголовки | Посмотреть заголовки ответа сервера |
 
-## Stack
+## Технологии
 
-- **Backend:** Python / FastAPI / uvicorn
-- **Frontend:** Vanilla HTML + CSS + JS (no frameworks)
-- **Proxy:** Caddy (auto HTTPS via Let's Encrypt)
-- **Runtime:** Docker + Docker Compose
+- Бэкенд: Python, FastAPI
+- Фронтенд: HTML, CSS, JavaScript (без фреймворков)
+- Контейнеризация: Docker, Docker Compose
+- Обратный прокси: Caddy (автоматический HTTPS через Let's Encrypt)
+- Хостинг: Render
 
-## Self-hosting
+## Запуск локально
 
-Requirements: Docker, Docker Compose, a domain pointing to your server.
+Нужен Docker и Docker Compose.
 
 ```bash
 git clone https://github.com/McMaxim/netscope.git
 cd netscope
-
-# Set your domain
-sed -i 's/yourdomain.com/your.actual.domain/g' Caddyfile
-
 docker compose up -d
 ```
 
-Caddy automatically obtains and renews TLS certificates. No manual cert setup needed.
+После этого приложение будет доступно на http://localhost:8000
 
-## Architecture
+Для работы с HTTPS на своём домене нужно поменять `yourdomain.com` в файле `Caddyfile` на свой домен и запустить через `docker compose up -d` на сервере с открытыми портами 80 и 443.
+
+## Структура проекта
 
 ```
-Browser
-  └─▶ Caddy (:443, auto-TLS)
-        ├─▶ /api/* ──▶ FastAPI backend (:8000)
-        └─▶ /*     ──▶ Static frontend files
+netscope/
+├── backend/
+│   ├── main.py          # FastAPI приложение, все эндпоинты
+│   ├── requirements.txt
+│   └── Dockerfile
+├── frontend/
+│   ├── index.html       # Главная страница
+│   └── docs.html        # Документация
+├── Dockerfile           # Основной Dockerfile (для Render)
+├── docker-compose.yml   # Для локального запуска с Caddy
+├── Caddyfile            # Конфиг Caddy с автоматическим HTTPS
+└── render.yaml          # Конфиг для деплоя на Render
 ```
 
 ## API
 
-All endpoints: `POST /api/<tool>`, JSON body, JSON response.
+Все эндпоинты принимают POST-запрос с JSON и возвращают JSON.
 
 ```
-POST /api/ping        {"host": "google.com"}
-POST /api/dns         {"host": "github.com"}
-POST /api/ports       {"host": "1.1.1.1", "ports": [80, 443]}
-POST /api/headers     {"url": "https://example.com"}
-POST /api/traceroute  {"host": "8.8.8.8"}
+POST /api/dns        {"host": "google.com"}
+POST /api/ports      {"host": "1.1.1.1", "ports": [80, 443]}
+POST /api/headers    {"url": "https://example.com"}
 GET  /api/health
 ```
 
-See [/docs.html](https://yourdomain.com/docs.html) for full API reference.
-
-## License
+## Лицензия
 
 MIT
