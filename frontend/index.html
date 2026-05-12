@@ -189,20 +189,9 @@
 
 <main>
   <h1>Network Diagnostics</h1>
-  <p class="subtitle">Inspect hosts, DNS records, open ports, HTTP headers, and routes — right from your browser.</p>
+  <p class="subtitle">Inspect DNS records, open ports, and HTTP headers — right from your browser.</p>
 
   <div class="tools-grid">
-
-    <!-- PING -->
-    <div class="tool-card">
-      <h2>📡 Ping</h2>
-      <p>Send ICMP packets and measure round-trip time</p>
-      <div class="input-row">
-        <input type="text" id="ping-host" placeholder="e.g. google.com" />
-        <button onclick="runPing()">Run</button>
-      </div>
-      <div class="result" id="ping-result"></div>
-    </div>
 
     <!-- DNS -->
     <div class="tool-card">
@@ -235,17 +224,6 @@
         <button onclick="runHeaders()">Fetch</button>
       </div>
       <div class="result" id="http-result"></div>
-    </div>
-
-    <!-- TRACEROUTE -->
-    <div class="tool-card" style="grid-column: 1 / -1">
-      <h2>🗺️ Traceroute</h2>
-      <p>Trace the network path from this server to a destination host</p>
-      <div class="input-row">
-        <input type="text" id="trace-host" placeholder="e.g. 8.8.8.8" />
-        <button onclick="runTrace()">Trace</button>
-      </div>
-      <div class="result" id="trace-result"></div>
     </div>
 
   </div>
@@ -287,21 +265,6 @@
       throw new Error(e.detail || r.statusText);
     }
     return r.json();
-  }
-
-  async function runPing() {
-    const host = document.getElementById('ping-host').value.trim();
-    if (!host) return;
-    spin('ping-result');
-    try {
-      const d = await post('/ping', {host});
-      const lines = d.output.map(l => {
-        if (l.includes('time=')) return `<span class="ok">${esc(l)}</span>`;
-        if (l.includes('PING')) return `<span class="key">${esc(l)}</span>`;
-        return esc(l);
-      }).join('\n');
-      show('ping-result', lines || (d.success ? '<span class="ok">Success</span>' : '<span class="err">No response</span>'));
-    } catch(e) { show('ping-result', `<span class="err">Error: ${esc(e.message)}</span>`); }
   }
 
   async function runDns() {
@@ -349,28 +312,13 @@
     } catch(e) { show('http-result', `<span class="err">Error: ${esc(e.message)}</span>`); }
   }
 
-  async function runTrace() {
-    const host = document.getElementById('trace-host').value.trim();
-    if (!host) return;
-    spin('trace-result');
-    try {
-      const d = await post('/traceroute', {host});
-      const lines = d.hops.map((l, i) =>
-        i === 0 ? `<span class="key">${esc(l)}</span>` : esc(l)
-      ).join('\n');
-      show('trace-result', lines);
-    } catch(e) { show('trace-result', `<span class="err">Error: ${esc(e.message)}</span>`); }
-  }
-
   // Enter key support
   document.addEventListener('keydown', e => {
     if (e.key !== 'Enter') return;
     const id = document.activeElement?.id;
-    if (id === 'ping-host') runPing();
-    else if (id === 'dns-host') runDns();
+    if (id === 'dns-host') runDns();
     else if (id === 'port-host') runPorts();
     else if (id === 'http-url') runHeaders();
-    else if (id === 'trace-host') runTrace();
   });
 </script>
 </body>

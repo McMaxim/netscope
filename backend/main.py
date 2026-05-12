@@ -1,13 +1,13 @@
 import asyncio
-import socket
-import subprocess
 import re
-from typing import Optional
 import httpx
 import dns.resolver
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
+from pathlib import Path
 
 app = FastAPI(title="NetScope API", version="1.0.0")
 
@@ -25,7 +25,7 @@ class HostRequest(BaseModel):
 
 class PortScanRequest(BaseModel):
     host: str
-    ports: list[int] = [22, 80, 443, 3000, 3306, 5432, 8080, 8443]
+    ports: list[int] = [21, 22, 25, 80, 443, 3000, 3306, 5432, 8080, 8443]
 
 
 class HttpRequest(BaseModel):
@@ -39,26 +39,15 @@ def sanitize_host(host: str) -> str:
     return host
 
 
+STATIC_DIR = Path(__file__).parent / "frontend"
+
 @app.get("/api/health")
 def health():
     return {"status": "ok"}
 
-
-@app.post("/api/ping")
-async def ping(req: HostRequest):
-    host = sanitize_host(req.host)
-    try:
-        proc = await asyncio.create_subprocess_exec(
-            "ping", "-c", "4", "-W", "2", host,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-        stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=15)
-        output = stdout.decode()
-        lines = [l for l in output.splitlines() if l.strip()]
-        return {"host": host, "output": lines, "success": proc.returncode == 0}
-    except asyncio.TimeoutError:
-        raise HTTPException(status_code=408, detail="Timeout")
+@app.get("/docs.html")
+def docs():
+    return FileResponse(STATIC_DIR / "docs.html")
 
 
 @app.post("/api/dns")
@@ -117,17 +106,6 @@ async def http_headers(req: HttpRequest):
         raise HTTPException(status_code=502, detail=str(e))
 
 
-@app.post("/api/traceroute")
-async def traceroute(req: HostRequest):
-    host = sanitize_host(req.host)
-    try:
-        proc = await asyncio.create_subprocess_exec(
-            "traceroute", "-m", "15", "-w", "1", host,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-        stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=30)
-        lines = [l for l in stdout.decode().splitlines() if l.strip()]
-        return {"host": host, "hops": lines}
-    except asyncio.TimeoutError:
-        raise HTTPException(status_code=408, detail="Timeout")
+# Serve frontend static files — must be last
+if STATIC_DIR.exists():
+    app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
